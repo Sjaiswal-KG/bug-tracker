@@ -1,42 +1,66 @@
 pipeline {
     agent any
 
+    options {
+        skipDefaultCheckout(true)
+        timestamps()
+    }
+
     stages {
-        stage('Unit Tests - Backend') {
-            agent{
-                docker{
-                    image 'snakee/golang-junit:1.21'
-                    reuseNode true
-                }
-            }
+
+        stage('Checkout') {
             steps {
-              dir('bugtracker-backend'){
-                sh 'go test -v ./...'
-              }
+                cleanWs()
+                checkout scm
             }
         }
 
-        stage ('Unit Tests - Frontend') {
-            agent{
-                docker{
-                    image 'cypress/included:12.0.0'
-                    reuseNode true
+        stage('Tests') {
+            parallel {
+
+                stage('Unit Tests - Backend') {
+                    agent {
+                        docker {
+                            image 'snakee/golang-junit:1.21'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        dir('bugtracker-backend') {
+                            sh 'go test -v ./...'
+                        }
+                    }
                 }
-            }
-            steps {
-              dir('bugtracker-frontend'){
-                sh '''
-                npm ci
-                npm test
-                '''
-              }
-            }
-            post {
-                always {
-                    junit 'bugtracker-frontend/test-results.xml'
+
+                stage('Unit Tests - Frontend') {
+                    agent {
+                        docker {
+                            image 'cypress/included:12.0.0'
+                            reuseNode true
+                        }
+                    }
+                    steps {
+                        dir('bugtracker-frontend') {
+                            sh '''
+                                npm ci --cache /tmp/npm-cache --prefer-offline
+                                npm test
+                            '''
+                        }
+                    }
+
+                    post {
+                        always {
+                            junit 'bugtracker-frontend/test-results.xml'
+                        }
+                    }
                 }
             }
         }
     }
-}
 
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
