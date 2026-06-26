@@ -5,10 +5,12 @@ interface DeleteBugButtonProps {
     onDelete: () => void;
 }
 
+import { API_BASE_URL } from "@/config";
+
 const DeleteBugButton: React.FC<DeleteBugButtonProps> = ({ bugId, onDelete }) => {
     const handleDelete = async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/bugs/${bugId}`, {
+            const response = await fetch(`${API_BASE_URL}/api/bugs/${bugId}`, {
                 method: 'DELETE',
             });
 

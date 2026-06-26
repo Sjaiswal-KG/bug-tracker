@@ -14,7 +14,8 @@ export const options = {
 
 export default function () {
   // Health check
-  const healthRes = http.get("http://localhost:8080/api/health");
+  const API_BASE = "http://localhost:8081";
+  const healthRes = http.get(`${API_BASE}/api/health`);
   check(healthRes, {
     "health check status is 200": (r) => r.status === 200,
   });
@@ -29,13 +30,19 @@ export default function () {
 
   const headers = { "Content-Type": "application/json" };
 
-  const createBugRes = http.post("http://localhost:8080/api/bugs", payload, {
-    headers,
-  });
+  const createBugRes = http.post(`${API_BASE}/api/bugs`, payload, { headers });
 
   check(createBugRes, {
     "create bug status is 201": (r) => r.status === 201,
-    "bug has an id": (r) => JSON.parse(r.body).id !== undefined,
+    "bug has an id": (r) => {
+      try {
+        const body = r.body || "";
+        const parsed = body ? JSON.parse(body) : {};
+        return parsed.id !== undefined;
+      } catch (e) {
+        return false;
+      }
+    },
   });
 
   sleep(5);

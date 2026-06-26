@@ -1,5 +1,58 @@
+// import { test, expect } from '@playwright/test';
+
+// test.describe.configure({ mode: 'serial' });
+
+// let testBugId: number;
+
+// test('Call Health Check', async ({ request }) => {
+//   const res = await request.get('/health');
+
+//   console.log('Status:', res.status());
+//   console.log('URL:', res.url());
+
+//   const body = await res.text();
+//   console.log('Body:', body);
+
+//   expect(res.ok()).toBeTruthy();
+// });
+
+// test('Create a bug', async ({ request }) => {
+//   const res = await request.post('/bugs', {
+//     data: {
+//       title: `Bug ${Date.now()}`,
+//       description: 'test',
+//       status: 'Open',
+//       priority: 'Medium',
+//     },
+//   });
+
+//   const bug = await res.json();
+//   testBugId = bug.id;
+//   expect(res.ok()).toBeTruthy();
+// });
+
+// test('Update a bug', async ({ request }) => {
+//   const res = await request.put(`/bugs/${testBugId}`, {
+//     data: { title: 'updated' },
+//   });
+
+//   expect(res.ok()).toBeTruthy();
+// });
+
+// test('Get a bug', async ({ request }) => {
+//   const res = await request.get(`/bugs/${testBugId}`);
+//   expect(res.ok()).toBeTruthy();
+// });
+
+// test('Delete a bug', async ({ request }) => {
+//   const res = await request.delete(`/bugs/${testBugId}`);
+//   expect(res.ok()).toBeTruthy();
+// });
+
+
 import { test, expect } from "@playwright/test";
 
+test.describe.configure({ mode: 'serial' });
 let testBugId: number;
 
 test("Call Health Check", async ({ request }) => {
@@ -91,7 +144,7 @@ test("Get a specific bug", async ({ request }) => {
 test("Delete a bug", async ({ request }) => {
   const deleteResponse = await request.delete(`bugs/${testBugId}`);
   expect(deleteResponse.ok()).toBeTruthy();
-
+ 
   const getResponse = await request.get(`bugs/${testBugId}`);
   expect(getResponse.status()).toBe(404);
 });
